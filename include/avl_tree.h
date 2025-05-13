@@ -22,6 +22,10 @@ class Node
 	}
 	template <typename T>
 	friend class AvlTree;
+public:
+	Node<T>* get_left() const { return left; }
+	Node<T>* get_right() const { return right; }
+	T get_data() const { return data.second; }
 };
 
 template<typename T>
@@ -36,12 +40,6 @@ class AvlTree
 		else if (key > node->data.first)
 			node = find_node(key, node->right);
 		return node;
-	}
-	int get_height(Node<T>* node) 
-	{
-		if (node == nullptr)
-			return 0;
-		return node->_height;
 	}
 	Node<T>* rotate_right(Node<T>* node) 
 	{
@@ -68,7 +66,7 @@ class AvlTree
 			Node<T>* newNode = new Node<T>(key, dat, _prev);
 			if (_prev != nullptr)
 			{
-				if (key < _prev->left->data.first)
+				if (key < _prev->data.first)
 					_prev->left = newNode;
 				else _prev->right = newNode;
 			}
@@ -111,6 +109,7 @@ class AvlTree
 	Node<T>* erase_node(size_t key, Node<T>* node)
 	{
 		if (node == nullptr) return nullptr;
+		if (node->prev == nullptr) root = nullptr;
 		if (key < node->data.first) 
 		{
 			node->left = erase_node(key, node->left);
@@ -123,15 +122,13 @@ class AvlTree
 		{
 			if (node->left == nullptr)
 			{
-				Node<T>* tmp_left = node->left;
 				delete node;
-				return tmp_left;
+				node = nullptr;
 			}
 			else if (node->right == nullptr)
 			{
-				Node<T>* tmp_right = node->right;
 				delete node;
-				return tmp_right;
+				node = nullptr;
 			}
 			else
 			{
@@ -167,18 +164,31 @@ class AvlTree
 public:
 	AvlTree(size_t key = 1, const T& dat = T())
 	{
-		root = new Node<T>(key, dat);
+		root = nullptr;
 	}
+	int get_height(Node<T>* node)
+	{
+		if (node == nullptr)
+			return 0;
+		return node->_height;
+	}
+	Node<T>* get_root() const { return root; }
 	T* find(size_t key)
 	{
+		if (root == nullptr) return nullptr;
 		Node<T>* pNode = find_node(key, root);
 		if (pNode == nullptr) return nullptr;
 		return &(pNode->data.second);
 	};
 	bool insert(size_t key, T dat)
 	{
-		Node<T>* pNode = insert_node(key, dat, root);
-		if (pNode == nullptr) return false;
+		if (root == nullptr)
+		{
+			root = new Node<T>(key, dat);
+			return true;
+		}
+		root = insert_node(key, dat, root);
+		if (root == nullptr) return false;
 		return true;
 	}
 	bool erase(size_t key)
