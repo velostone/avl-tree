@@ -20,7 +20,7 @@ class Node
 		prev = nullptr;
 		_height = 0;
 	}
-	template <typename T>
+	template<typename U>
 	friend class AvlTree;
 public:
 	Node<T>* get_left() const { return left; }
